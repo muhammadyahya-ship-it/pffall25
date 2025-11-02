@@ -1,0 +1,151 @@
+#include <stdio.h>
+#include <string.h>
+
+int addnew(int isbn1[100], int quantity1[100], float prices1[100], char titles1[100][50]) {
+    static int i = 0;
+    int isbn3;
+
+    printf("\nEnter ISBN number: ");
+    scanf("%d", &isbn3);
+
+    for (int j = i; j >= 0; j--) {
+        if (isbn3 == isbn1[j]) {
+            printf("\nDuplicate ISBN (INVALID)");
+            return 0;
+        } else {
+            isbn1[i] = isbn3;
+        }
+    }
+
+    getchar(); // clear leftover newline from scanf
+    printf("\nEnter Book title: ");
+    fgets(titles1[i], sizeof(titles1[i]), stdin);
+
+    printf("\nEnter Book quantity: ");
+    scanf("%d", &quantity1[i]);   
+
+    printf("\nEnter Book price: ");
+    scanf("%f", &prices1[i]);     
+
+    i++;
+    return 1;
+}
+
+int process(int copies, int isbnin, int isbn2[100], int quantity[100]) {
+    printf("\nEnter the ISBN number of the Book: ");
+    scanf("%d", &isbnin); 
+
+    int length;
+    int booknum;
+
+    while (1) {
+        static int i = 0;
+        if (isbn2[i] == 0) {
+            length = i - 1;
+            break;
+        }
+        i++;
+    }
+
+    for (int k = 0; k <= length; k++) {
+        if (isbnin == isbn2[k]) {
+            booknum = k;   
+            break;
+        } else {
+            booknum = 1000;
+        }
+    }
+    if(booknum == 1000){
+        printf("INVALID ISBN");
+        return 0;
+    }
+    if (quantity[booknum] <= 0) {
+        printf("Out of stock");
+        return 0;
+    }
+
+    printf("\nEnter the amount of copies sold: ");
+    scanf("%d", &copies);  
+
+    quantity[booknum] = quantity[booknum] - copies;
+
+    if (quantity[booknum] <= 0) {
+        printf("Out of stock");
+        return 0;
+    }
+
+    return 1;
+}
+
+int display(int isbn[100], char titles[100][50], float prices[100], int quantity[100]) {
+    int length;
+    while (1) {
+        static int i = 0;
+        if (isbn[i] == 0) {
+            length = i - 1;
+            break;
+        }
+        i++;
+    }
+
+    for (int j = 0; j <= length; j++) {
+        if (quantity[j] <= 5) {
+            printf("\n%-10d %-25s %-10.2f %-10d", isbn[j], titles[j], prices[j], quantity[j]);
+ 
+        } else {
+            printf("\nNo books are on low stock");
+        }
+    }
+
+    return 1;
+}
+
+int main() {
+    int isbns[100] = {0};
+    char titles[100][50];
+    float prices[100] = {0};
+    int quantities[100] = {0};
+    int copies1;
+    int choice;
+    int isbnin;
+
+    printf("-----------MENU-----------\n1.Add new book\n2.Process a sale\n3.Low-stock books\n4.exit");
+
+    while (1) {
+        printf("\nEnter choice number: ");
+        scanf("%d", &choice);  
+
+        if (choice == 4) {
+            return 0;
+        }
+
+        switch (choice) {
+            case 1: {
+                int result = addnew(isbns, quantities, prices, titles);
+                if (result == 0) {
+                    continue;
+                }
+                break;
+            }
+
+            case 2: {
+                int result = process(copies1, isbnin, isbns, quantities);
+                if (result == 0) {
+                    continue;
+                }
+                break;
+            }
+
+            case 3:
+                printf("ISBN\tTITLES\tPRICES\tQUANTITIES");
+                display(isbns, titles, prices, quantities);
+                break;
+
+            default:
+                printf("\nInvalid input");
+                break;
+        }
+    }
+
+    return 0;
+}
