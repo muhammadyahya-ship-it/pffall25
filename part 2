@@ -1,0 +1,103 @@
+#include <stdio.h>
+#include <string.h>
+
+void credentials(char name[50], long int *cnic) {
+    printf("\nEnter Your Name: ");
+    fgets(name, 50, stdin);
+    name[strcspn(name, "\n")] = '\0';
+    printf("\nEnter Your CNIC number: ");
+    scanf("%ld", cnic);
+    getchar();
+}
+
+float saleprocess(int quantity[8], float price[8], int choice, int *quanin) {
+    static float total = 0;
+    printf("\nEnter quantity: ");
+    scanf("%d", quanin);
+    int index = choice - 1;
+    if (*quanin > quantity[index]) {
+        printf("\nQUANTITY NOT IN STOCK\n");
+        return total;
+    }
+    quantity[index] -= *quanin;
+    total += (*quanin) * price[index];
+    return total;
+}
+
+int main() {
+    char name[50];
+    long int cnic;
+    float total = 0;
+    int quantity[8] = {50, 70, 55, 76, 90, 89, 34, 65};
+    int prod_code[8] = {1, 2, 3, 4, 5, 6, 7, 8};
+    float price[8] = {50.00, 52.99, 80.99, 100.99, 120.00, 30.99, 40.75, 70.99};
+    char prod_name[8][50] = {"rice", "sugar", "wheat", "maize", "oil", "pulses", "spices", "ghee"};
+
+    printf("----------MENU----------");
+    printf("\nCODE\tPRODUCT\t   PRICE\tQUANTITY\n");
+    for (int i = 0; i < 8; i++) {
+        printf("%-5d\t%-10s\t%.2f\t%5d\n", prod_code[i], prod_name[i], price[i], quantity[i]);
+    }
+
+    credentials(name, &cnic);
+
+    int choice, quanin;
+    printf("\nChoose Product Code to add to cart (Enter 10 to exit)\n");
+
+    while (1) {
+        printf("\nEnter Choice: ");
+        scanf("%d", &choice);
+        if (choice == 10)
+            break;
+        if (choice >= 1 && choice <= 8) {
+            total = saleprocess(quantity, price, choice, &quanin);
+        } else {
+            printf("Invalid code.\n");
+        }
+    }
+
+    int choice1, ch;
+    char promo[20];
+    char code[8] = "Eid2025";
+
+    printf("\nTotal Bill: %.2f", total);
+    printf("\nPress 1 for promocode details OR 0 to exit: ");
+    scanf("%d", &choice1);
+
+    switch (choice1) {
+        case 0:
+            printf("\nTotal Bill: %.2f\nName: %s\nCNIC: %ld\n", total, name, cnic);
+            break;
+        case 1:
+            printf("\nWe are currently offering PROMOCODE: Eid2025\nPress (1) if you have a voucher\nPress (0) if you don't: ");
+            scanf("%d", &ch);
+            if (ch == 1) {
+                int i = 0;
+                while (i < 3) {
+                    i++;
+                    printf("Enter promo code: ");
+                    scanf("%s", promo);
+                    if (strcmp(promo, code) == 0) {
+                        float newtotal = total - total * 25 / 100;
+                        printf("\nPromo Applied Successfully!");
+                        printf("\nTotal Bill: %.2f\nDiscounted Bill: %.2f\nName: %s\nCNIC: %ld\n",
+                               total, newtotal, name, cnic);
+                        break;
+                    } else {
+                        printf("INVALID PROMOCODE (Attempt %d/3)\n", i);
+                    }
+                }
+            }
+            else if(ch==0){
+                break;
+            }
+            else{
+                printf("INVALID CHOICE");
+            }
+            break;
+        default:
+            printf("\nInvalid choice.");
+    }
+
+    return 0;
+}
