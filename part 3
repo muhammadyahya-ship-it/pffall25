@@ -1,0 +1,150 @@
+#include <stdio.h>
+#include <math.h>
+
+int conversion(int grid[3][3], int row) {
+    int result = 0;
+    int bit = 0;
+    for (int col = 2; col >= 0; col--) {
+        result += grid[row][bit] * pow(2, col);
+        bit++;
+    }
+    return result;
+}
+
+int innerfunc(int grid[3][3], int i, int j) {
+    while (1) {
+        scanf("%d", &grid[i][j]);
+        if (grid[i][j] != 1 && grid[i][j] != 0) {
+            printf("Invalid input. Try again: ");
+        } else {
+            break;
+        }
+    }
+    return grid[i][j];
+}
+
+int update(int grid[3][3]) {
+    static int k = 0;
+    int row, col, ch;
+    if (k == 0) {
+        for (int i = 0; i < 3; i++) {
+            printf("\n--- Enter data for Sector %d ---\n", i + 1);
+            for (int j = 0; j < 3; j++) {
+                switch (j) {
+                    case 0:
+                        printf("Enter Power Status (0/1): ");
+                        break;
+                    case 1:
+                        printf("Enter Overload Warning (0/1): ");
+                        break;
+                    case 2:
+                        printf("Enter Maintenance Status (0/1): ");
+                        break;
+                }
+                innerfunc(grid, i, j);
+            }
+        }
+    } else {
+        while (1) {
+            printf("\nEnter 1 to update, 0 to exit: ");
+            scanf("%d", &ch);
+            if (ch == 1) {
+                printf("Enter row (sector number 0-2): ");
+                scanf("%d", &row);
+                printf("Enter column (0=Power, 1=Overload, 2=Maintenance): ");
+                scanf("%d", &col);
+                printf("Enter status (0/1): ");
+                innerfunc(grid, row, col);
+            } else break;
+        }
+    }
+    k++;
+    return 0;
+}
+
+int query(int grid[3][3]) {
+    int row, col, ch, choice;
+    while (1) {
+        printf("\nEnter 1 to continue, 0 to exit: ");
+        scanf("%d", &ch);
+        if (ch == 0) break;
+        printf("\n1. Entire sector report\n0. Specific status\nChoice: ");
+        scanf("%d", &choice);
+        if (choice == 0) {
+            printf("Enter row (sector number 0-2): ");
+            scanf("%d", &row);
+            printf("Enter column (0=Power, 1=Overload, 2=Maintenance): ");
+            scanf("%d", &col);
+            if (col == 0)
+                printf(grid[row][col] ? "Power is ON\n" : "Power is OFF\n");
+            else if (col == 1)
+                printf(grid[row][col] ? "Overload Warning!\n" : "Load Normal\n");
+            else if (col == 2)
+                printf(grid[row][col] ? "Maintenance Required\n" : "No Maintenance Needed\n");
+        } 
+        else if (choice == 1) {
+            printf("Enter sector number (0-2): ");
+            scanf("%d", &row);
+            int result = conversion(grid, row);
+            printf("\n--------REPORT-------\n");
+            printf("Status (Decimal): %d\n", result);
+            if (((result >> 2) & 1) == 1)
+                printf("Power: ON\n");
+            else
+                printf("Power: OFF\n");
+            if (((result >> 1) & 1) == 1)
+                printf("Overload: YES\n");
+            else
+                printf("Overload: NO\n");
+            if (((result >> 0) & 1) == 1)
+                printf("Maintenance: REQUIRED\n");
+            else
+                printf("Maintenance: NOT REQUIRED\n");
+        } 
+        else {
+            printf("Invalid choice.\n");
+        }
+    }
+    return 0;
+}
+
+int diagnosis(int grid[3][3]) {
+    int count_over = 0;
+    int count_main = 0;
+    for (int i = 0; i < 3; i++) {
+        if (grid[i][1] == 1) count_over++;
+        if (grid[i][2] == 1) count_main++;
+    }
+    printf("\n---- SYSTEM DIAGNOSTICS ----\n");
+    printf("Overloaded Sectors: %d\n", count_over);
+    printf("Maintenance Needed: %d\n", count_main);
+    printf("Total Affected: %d\n", count_over + count_main);
+    return 0;
+}
+
+int main() {
+    int grid[3][3] = {0};
+    int choice;
+    printf("------------MENU----------\n");
+    printf("1. Update Sector Status\n2. Run Query\n3. Run System Diagnostics\n4. Exit\n");
+    while (1) {
+        printf("\nEnter choice: ");
+        scanf("%d", &choice);
+        switch (choice) {
+            case 1:
+                update(grid);
+                break;
+            case 2:
+                query(grid);
+                break;
+            case 3:
+                diagnosis(grid);
+                break;
+            case 4:
+                printf("Exiting...\n");
+                return 0;
+            default:
+                printf("Invalid Choice\n");
+        }
+    }
+}
